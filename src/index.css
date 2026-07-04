@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* CSS 变量默认值（非 iOS 设备） */
+  :root {
+    --sat: 0px;
+    --sab: 0px;
+  }
+
+  /* iOS 设备读取 safe-area-inset */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    :root {
+      --sat: env(safe-area-inset-top);
+      --sab: env(safe-area-inset-bottom);
+    }
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
+    background-color: #f9fafb;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+
+  input, textarea, button {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .safe-area-bottom {
+    padding-bottom: var(--sab);
+  }
+
+  .safe-area-top {
+    padding-top: var(--sat);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ===== 跨品牌 WebView 兼容修复 ===== */
+
+/* 修复三星/华为 WebView 中 bottom fixed 定位 */
+@supports (position: fixed) {
+  .fixed.bottom-0 {
+    position: fixed;
+  }
+}
+
+/* 修复 flex 在特定设备上的渲染 */
+.flex {
+  display: flex;
+}
+
+/* 防止点击时灰色高亮 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 按钮点击微缩放（硬件加速优化） */
+button:active {
+  transform: scale(0.95);
+  -webkit-transform: scale(0.95);
+}
+
+/* 修复 Android 上输入框缩放问题 */
+input, textarea, select {
+  font-size: 16px;
+}

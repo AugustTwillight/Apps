@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+
+# iOS
+ios/App/Pods/
+ios/App/App/public/
+ios/App/build/
+ios/Podfile.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Database
+data/
+db.json
+
+# Keystore & signing
+*.keystore
+keystore.properties
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: tongxue-server
+    env: node
+    buildCommand: npm install
+    startCommand: node server/index.cjs
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WECHAT_APP_ID
+        value: ""
+      - key: WECHAT_APP_SECRET
+        value: ""
+      - key: QQ_APP_ID
+        value: ""
+      - key: QQ_APP_SECRET
+        value: ""

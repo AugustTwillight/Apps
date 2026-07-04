@@ -1,0 +1,152 @@
+import { create } from 'zustand';
+import type { TabType, DailyGoal, ScreenLockConfig, LockStatus, FocusSession, CoupleRelation, CoupleNote } from '../types';
+import { currentUser, todaysGoals, coupleRelation as mockCouple, coupleNotes as mockNotes, defaultFocusSession } from '../mock/data';
+
+interface AppState {
+  currentTab: TabType;
+  setTab: (tab: TabType) => void;
+
+  user: typeof currentUser;
+
+  goals: DailyGoal[];
+  addGoal: (goal: DailyGoal) => void;
+  updateGoalProgress: (goalId: string, progress: number) => void;
+
+  lockConfig: ScreenLockConfig;
+  lockState: LockStatus;
+  focusSession: FocusSession;
+  startFocus: (minutes: number) => void;
+  pauseFocus: () => void;
+  resumeFocus: () => void;
+  stopFocus: () => void;
+  emergencyUnlock: () => void;
+  tickFocus: () => void;
+
+  coupleRelation: CoupleRelation | null;
+  coupleNotes: CoupleNote[];
+  isBound: boolean;
+  bindPartner: (code: string) => void;
+  sendCoupleNote: (content: string, type: CoupleNote['type']) => void;
+
+  todayMinutes: number;
+  addStudyMinutes: (minutes: number) => void;
+}
+
+const defaultLockConfig: ScreenLockConfig = {
+  mode: 'focus',
+  duration: 25,
+  blockedApps: ['微信', '抖音', '微博', '王者荣耀'],
+  emergencyUnlock: true,
+  penaltyPoints: 5
+};
+
+export const useAppStore = create<AppState>((set, get) => ({
+  currentTab: 'home',
+  setTab: (tab) => set({ currentTab: tab }),
+
+  user: currentUser,
+
+  goals: todaysGoals,
+  addGoal: (goal) => set((s) => ({ goals: [...s.goals, goal] })),
+  updateGoalProgress: (goalId, progress) =>
+    set((s) => ({
+      goals: s.goals.map((g) =>
+        g.id === goalId
+          ? { ...g, progress: Math.min(progress, g.target), completed: progress >= g.target }
+          : g
+      ),
+    })),
+
+  lockConfig: defaultLockConfig,
+  lockState: 'unlocked',
+  focusSession: defaultFocusSession,
+
+  startFocus: (minutes) =>
+    set({
+      lockState: 'locked',
+      focusSession: {
+        id: 'fs_' + Date.now(),
+        mode: 'focus',
+        totalMinutes: minutes,
+        elapsedMinutes: 0,
+        status: 'running',
+        startTime: new Date().toISOString(),
+      },
+    }),
+
+  pauseFocus: () =>
+    set((s) => ({
+      focusSession: { ...s.focusSession, status: 'paused' as const },
+    })),
+
+  resumeFocus: () =>
+    set((s) => ({
+      focusSession: { ...s.focusSession, status: 'running' as const },
+    })),
+
+  stopFocus: () =>
+    set((s) => ({
+      lockState: 'unlocked',
+      focusSession: { ...s.focusSession, status: 'completed' as const },
+    })),
+
+  emergencyUnlock: () =>
+    set((s) => ({
+      lockState: 'emergency',
+      focusSession: { ...s.focusSession, status: 'interrupted' as const },
+    })),
+
+  // 关键修复：根据真实时间计算已用时长，不受 setInterval 节流影响
+  tickFocus: () =>
+    set((s) => {
+      if (s.focusSession.status !== 'running') return {};
+      const now = Date.now();
+      const start = new Date(s.focusSession.startTime).getTime();
+      const elapsedMs = now - start;
+      const elapsedMins = Math.floor(elapsedMs / 60000);
+      
+      if (elapsedMins >= s.focusSession.totalMinutes) {
+        return {
+          focusSession: { ...s.focusSession, elapsedMinutes: s.focusSession.totalMinutes, status: 'completed' as const },
+          lockState: 'unlocked' as LockStatus,
+        };
+      }
+      return { focusSession: { ...s.focusSession, elapsedMinutes: elapsedMins } };
+    }),
+
+  coupleRelation: mockCouple,
+  coupleNotes: mockNotes,
+  isBound: true,
+
+  bindPartner: (code) =>
+    set({
+      isBound: true,
+      coupleRelation: {
+        partnerId: 'partner_' + code,
+        partnerName: '学习伙伴',
+        partnerAvatar: '',
+        bindDate: new Date().toISOString(),
+        totalStudyTogether: 0,
+        daysTogether: 0,
+      },
+    }),
+
+  sendCoupleNote: (content, type) =>
+    set((s) => ({
+      coupleNotes: [
+        {
+          id: 'cn_' + Date.now(),
+          fromId: 'u1',
+          fromName: '学习达人小明',
+          content,
+          type,
+          createdAt: new Date().toISOString(),
+          read: false,
+        },
+        ...s.coupleNotes,
+      ],
+    })),
+
+  todayMinutes: 85,
+  addStudyMinutes: (minutes) => set((s) => ({ todayMinutes: s.todayMinutes + minutes })),
+}));
