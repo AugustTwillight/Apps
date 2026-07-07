@@ -198,7 +198,7 @@ app.post('/api/upload', auth, async (req, res) => {
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 if (fs.existsSync(DIST_DIR)) {
   app.use(express.static(DIST_DIR));
-  app.get('*', (req, res) => {
+  app.get('/(.*)', (req, res) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) return;
     res.sendFile(path.join(DIST_DIR, 'index.html'));
   });
