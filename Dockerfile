@@ -9,6 +9,7 @@ RUN npm run build
 # ── 运行阶段 ──
 FROM node:20-alpine
 WORKDIR /app
+RUN mkdir -p /app/data
 COPY --from=builder /app/server ./server
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
