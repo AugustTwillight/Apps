@@ -4,8 +4,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ 请在 .env 中设置 SUPABASE_URL 和 SUPABASE_KEY');
-  process.exit(1);
+  throw new Error('Missing SUPABASE_URL or SUPABASE_KEY in environment');
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
