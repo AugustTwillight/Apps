@@ -38,3 +38,7 @@ keystore.properties
 # Logs
 *.log
 npm-debug.log*
+data/
+
+tsconfig.tsbuildinfo
+package-lock.json
