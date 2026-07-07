@@ -92,7 +92,7 @@ export const useAppStore = create<AppState>()(
       // ---- 认证 ----
       isLoggedIn: false,
       token: null,
-      serverUrl: 'http://localhost:3001',
+      serverUrl: 'https://tongxue-server-production.up.railway.app',
       login: (token, user) => set({ isLoggedIn: true, token, user }),
       logout: () => set({ isLoggedIn: false, token: null, currentTab: 'home' }),
       setServerUrl: (url) => set({ serverUrl: url }),
